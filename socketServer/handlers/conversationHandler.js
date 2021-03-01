@@ -39,7 +39,7 @@ module.exports = function conversation(socket, io) {
         // Create new Conversation
         const newConversation = new Conversation({
           members: membersIds,
-          admin: membersIds,
+          admins: membersIds,
           messages: [newMessage],
           lastMessageDate: newMessage.date,
         });
@@ -51,7 +51,7 @@ module.exports = function conversation(socket, io) {
 
         // Get a list of connected sockets related to the conversation
         const connectedSocketsToTheConversation = listOfSockets.filter(
-          (socketItem2) => membersIds.includes(socketItem2.userId),
+          (socketItem2) => membersIds.includes(socketItem2.userId)
         );
 
         // If there are any
@@ -62,7 +62,7 @@ module.exports = function conversation(socket, io) {
           });
         }
         const populatedConversation = await Conversation.findById(
-          newConversation._id,
+          newConversation._id
         ).populate('members');
 
         // Emit message to conversation room
@@ -109,7 +109,7 @@ module.exports = function conversation(socket, io) {
     try {
       const conversation = await Conversation.findById(conversationId).populate(
         'members',
-        'username',
+        'username'
       );
       if (!conversation) {
         throw new Error('There is no conversation with given id');
