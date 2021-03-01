@@ -1,17 +1,15 @@
 /* eslint-disable consistent-return */
-const express = require('express');
-
+const express = require("express");
 const router = express.Router();
-const aws = require('aws-sdk');
-const config = require('config');
-const multer = require('multer');
-const multerS3 = require('multer-s3-transform');
-const sharp = require('sharp');
-const { v4: uuid } = require('uuid');
-const auth = require('../../middleware/auth');
-const socketTypes = require('../../consts/socketTypes');
+const aws = require("aws-sdk");
+const multer = require("multer");
+const multerS3 = require("multer-s3-transform");
+const sharp = require("sharp");
+const { v4: uuid } = require("uuid");
+const auth = require("../../middleware/auth");
+const socketTypes = require("../../consts/socketTypes");
 
-const Conversation = require('../../models/Conversation');
+const Conversation = require("../../models/Conversation");
 
 const joinSocketsToConversationRoom = (io, membersIds, conversationId) => {
   const listOfSockets = Object.values(io.sockets.sockets);
@@ -37,22 +35,22 @@ const convertArrayToObject = (array, key) =>
   }, {});
 
 const s3 = new aws.S3({
-  accessKeyId: config.get('s3accessKeyId'),
-  secretAccessKey: config.get('s3secretAccessKey'),
-  Bucket: config.get('s3Bucket'),
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  Bucket: process.env.S3_BUCKET,
 });
 
 const upload = multer({
   storage: multerS3({
     s3,
     bucket: s3.config.Bucket,
-    acl: 'public-read',
+    acl: "public-read",
     shouldTransform(req, file, cb) {
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
       {
-        id: 'avatarOriginal',
+        id: "avatarOriginal",
         key(req, file, cb) {
           cb(null, `${req.uniqueFilename}.webp`);
         },
@@ -61,7 +59,7 @@ const upload = multer({
         },
       },
       {
-        id: 'avatar300x300',
+        id: "avatar300x300",
         key(req, file, cb) {
           cb(null, `${req.uniqueFilename}300x300.webp`);
         },
@@ -73,7 +71,7 @@ const upload = multer({
         },
       },
       {
-        id: 'avatar50x50',
+        id: "avatar50x50",
         key(req, file, cb) {
           cb(null, `${req.uniqueFilename}50x50.webp`);
         },
@@ -98,7 +96,7 @@ const upload = multer({
   },
 });
 
-router.post('/', auth, upload.single('file'), async (req, res) => {
+router.post("/", auth, upload.single("file"), async (req, res) => {
   try {
     let avatars = null;
     if (req?.file?.transforms) {
@@ -107,7 +105,7 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
           id: avatar.id,
           url: avatar.location,
         })),
-        'id'
+        "id"
       );
     }
 
@@ -148,13 +146,13 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
 
     await newConversation.save();
 
-    const io = req.app.get('socketio');
+    const io = req.app.get("socketio");
 
     joinSocketsToConversationRoom(io, membersIds, newConversation._id);
 
     const populatedConversation = await Conversation.findById(
       newConversation._id
-    ).populate('members', 'username');
+    ).populate("members", "username");
 
     const socket = io.sockets.sockets[socketId];
 
@@ -165,7 +163,7 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
     res.json(populatedConversation);
   } catch (error) {
     console.log(error.message);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 

@@ -1,28 +1,27 @@
 /* eslint-disable consistent-return */
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const config = require('config');
-const bcrypt = require('bcryptjs');
-const { check, validationResult } = require('express-validator');
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { check, validationResult } = require("express-validator");
 
 const isDevelopment =
-  process.env.NODE_ENV && process.env.NODE_ENV === 'development';
+  process.env.NODE_ENV && process.env.NODE_ENV === "development";
 
 const router = express.Router();
-const User = require('../../models/User');
+const User = require("../../models/User");
 
 // @route POST api/users
 // @desc Register user
 // @access public
 
 router.post(
-  '/',
+  "/",
   [
-    check('username', 'Username is required').not().isEmpty(),
-    check('email', 'Please include a vaild email').isEmail(),
+    check("username", "Username is required").not().isEmpty(),
+    check("email", "Please include a vaild email").isEmail(),
     check(
-      'password',
-      'Please enter a password with 6 or more characters'
+      "password",
+      "Please enter a password with 6 or more characters"
     ).isLength({ min: 6 }),
   ],
   async (req, res) => {
@@ -38,11 +37,11 @@ router.post(
         if (user.email === email) {
           return res
             .status(400)
-            .json({ errors: [{ msg: 'User with this email already exists' }] });
+            .json({ errors: [{ msg: "User with this email already exists" }] });
         }
         if (user.username === username) {
           return res.status(400).json({
-            errors: [{ msg: 'User with this username already exists' }],
+            errors: [{ msg: "User with this username already exists" }],
           });
         }
       }
@@ -66,21 +65,21 @@ router.post(
       };
 
       // Create token
-      const token = jwt.sign(payload, config.get('auth_main_secret'), {
-        expiresIn: '5 days',
+      const token = jwt.sign(payload, process.env.AUTH_MAIN_SECRET, {
+        expiresIn: "5 days",
       });
 
       return res
-        .cookie('letstalk_authMain', token, {
+        .cookie("letstalk_authMain", token, {
           secure: !isDevelopment,
           maxAge: 10000000,
           httpOnly: true,
-          sameSite: isDevelopment ? false : 'None',
+          sameSite: isDevelopment ? false : "None",
         })
         .send();
     } catch (error) {
       console.error(error.message);
-      res.status(500).send('Server error');
+      res.status(500).send("Server error");
     }
   }
 );

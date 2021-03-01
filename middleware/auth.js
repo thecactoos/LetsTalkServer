@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const config = require("config");
 
 function auth(req, res, next) {
   // Get token from header
@@ -10,9 +9,10 @@ function auth(req, res, next) {
     return res.status(401).json({ msg: "No token, authorization denied" });
   }
 
+  console.log(process.env.AUTH_MAIN_SECRET);
   // Verify token
   try {
-    const decoded = jwt.verify(token, config.get("auth_main_secret"));
+    const decoded = jwt.verify(token, process.env.AUTH_MAIN_SECRET);
 
     req.userId = decoded.user.id;
     next();
