@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -6,24 +6,21 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  bio: {
-    type: String,
-  },
   avatar50x50: {
     type: String,
-    default: "https://lets-talk-bucket.s3.amazonaws.com/default50x50.webp",
+    default: 'https://lets-talk-bucket.s3.amazonaws.com/default50x50.webp',
   },
   avatar300x300: {
     type: String,
-    default: "https://lets-talk-bucket.s3.amazonaws.com/default300x300.webp",
+    default: 'https://lets-talk-bucket.s3.amazonaws.com/default300x300.webp',
   },
   avatarOriginal: {
     type: String,
-    default: "https://lets-talk-bucket.s3.amazonaws.com/default.webp",
+    default: 'https://lets-talk-bucket.s3.amazonaws.com/default.webp',
   },
   bio: {
     type: String,
-    default: "No description",
+    default: '',
   },
   email: {
     type: String,
@@ -40,4 +37,4 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("user", UserSchema);
+module.exports = mongoose.model('user', UserSchema);
