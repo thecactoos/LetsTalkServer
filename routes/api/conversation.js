@@ -1,24 +1,25 @@
 /* eslint-disable consistent-return */
-const express = require("express");
-const router = express.Router();
-const aws = require("aws-sdk");
-const config = require("config");
-const multer = require("multer");
-const multerS3 = require("multer-s3-transform");
-const sharp = require("sharp");
-const { v4: uuid } = require("uuid");
-const auth = require("../../middleware/auth");
-const socketTypes = require("../../consts/socketTypes");
+const express = require('express');
 
-const Conversation = require("../../models/Conversation");
+const router = express.Router();
+const aws = require('aws-sdk');
+const config = require('config');
+const multer = require('multer');
+const multerS3 = require('multer-s3-transform');
+const sharp = require('sharp');
+const { v4: uuid } = require('uuid');
+const auth = require('../../middleware/auth');
+const socketTypes = require('../../consts/socketTypes');
+
+const Conversation = require('../../models/Conversation');
 
 const joinSocketsToConversationRoom = (io, membersIds, conversationId) => {
   const listOfSockets = Object.values(io.sockets.sockets);
 
   // Get a list of connected sockets related to the conversation
-  const connectedSocketsToTheConversation = listOfSockets.filter((socket) => {
-    return membersIds.includes(socket.userId);
-  });
+  const connectedSocketsToTheConversation = listOfSockets.filter((socket) =>
+    membersIds.includes(socket.userId)
+  );
 
   // If there are any
   if (connectedSocketsToTheConversation.length !== 0) {
@@ -36,35 +37,35 @@ const convertArrayToObject = (array, key) =>
   }, {});
 
 const s3 = new aws.S3({
-  accessKeyId: config.get("s3accessKeyId"),
-  secretAccessKey: config.get("s3secretAccessKey"),
-  Bucket: config.get("s3Bucket"),
+  accessKeyId: config.get('s3accessKeyId'),
+  secretAccessKey: config.get('s3secretAccessKey'),
+  Bucket: config.get('s3Bucket'),
 });
 
 const upload = multer({
   storage: multerS3({
-    s3: s3,
+    s3,
     bucket: s3.config.Bucket,
-    acl: "public-read",
-    shouldTransform: function (req, file, cb) {
+    acl: 'public-read',
+    shouldTransform(req, file, cb) {
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
       {
-        id: "avatarOriginal",
-        key: function (req, file, cb) {
+        id: 'avatarOriginal',
+        key(req, file, cb) {
           cb(null, `${req.uniqueFilename}.webp`);
         },
-        transform: function (req, file, cb) {
+        transform(req, file, cb) {
           cb(null, sharp({ failOnError: false }).rotate().webp());
         },
       },
       {
-        id: "avatar300x300",
-        key: function (req, file, cb) {
+        id: 'avatar300x300',
+        key(req, file, cb) {
           cb(null, `${req.uniqueFilename}300x300.webp`);
         },
-        transform: function (req, file, cb) {
+        transform(req, file, cb) {
           cb(
             null,
             sharp({ failOnError: false }).rotate().resize(300, 300).webp()
@@ -72,11 +73,11 @@ const upload = multer({
         },
       },
       {
-        id: "avatar50x50",
-        key: function (req, file, cb) {
+        id: 'avatar50x50',
+        key(req, file, cb) {
           cb(null, `${req.uniqueFilename}50x50.webp`);
         },
-        transform: function (req, file, cb) {
+        transform(req, file, cb) {
           cb(
             null,
             sharp({ failOnError: false }).rotate().resize(50, 50).webp()
@@ -91,13 +92,13 @@ const upload = multer({
     const receivers = JSON.parse(receiversString);
     req.uniqueFilename = uuid();
     if (receivers && receivers.length === 0) {
-      return cb(new Error(`You didn't set receivers`), false);
+      return cb(new Error("You didn't set receivers"), false);
     }
     cb(null, true);
   },
 });
 
-router.post("/", auth, upload.single("file"), async (req, res) => {
+router.post('/', auth, upload.single('file'), async (req, res) => {
   try {
     let avatars = null;
     if (req?.file?.transforms) {
@@ -106,7 +107,7 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
           id: avatar.id,
           url: avatar.location,
         })),
-        "id"
+        'id'
       );
     }
 
@@ -118,7 +119,7 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
 
     // Check ReceiversIds
     if (receiversIds.length === 0) {
-      throw new Error(`You didn't set receivers`);
+      throw new Error("You didn't set receivers");
     }
 
     // Create membersIds
@@ -129,7 +130,7 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
     if (avatars) {
       newConversation = new Conversation({
         members: membersIds,
-        admin: membersIds,
+        admins: membersIds,
         chatName,
         isGroup: true,
         avatarOriginal: avatars.avatarOriginal.url,
@@ -140,20 +141,20 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
       newConversation = new Conversation({
         isGroup: true,
         members: membersIds,
-        admin: membersIds,
+        admins: membersIds,
         chatName,
       });
     }
 
     await newConversation.save();
 
-    const io = req.app.get("socketio");
+    const io = req.app.get('socketio');
 
     joinSocketsToConversationRoom(io, membersIds, newConversation._id);
 
     const populatedConversation = await Conversation.findById(
       newConversation._id
-    ).populate("members", "username");
+    ).populate('members', 'username');
 
     const socket = io.sockets.sockets[socketId];
 
@@ -164,7 +165,7 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
     res.json(populatedConversation);
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Server error");
+    res.status(500).send('Server error');
   }
 });
 

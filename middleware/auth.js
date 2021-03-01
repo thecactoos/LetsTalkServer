@@ -3,7 +3,7 @@ const config = require("config");
 
 function auth(req, res, next) {
   // Get token from header
-  const token = req.cookies["letstalk_authMain"];
+  const token = req.cookies?.letstalk_authMain;
 
   // Check if token exists
   if (!token) {

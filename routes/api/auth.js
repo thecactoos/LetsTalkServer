@@ -1,24 +1,27 @@
-const express = require("express");
+const express = require('express');
 
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const config = require("config");
-const { check, validationResult } = require("express-validator");
-const auth = require("../../middleware/auth");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const { check, validationResult } = require('express-validator');
+const auth = require('../../middleware/auth');
 
-const User = require("../../models/User");
+const User = require('../../models/User');
+
+const isDevelopment =
+  process.env.NODE_ENV && process.env.NODE_ENV === 'development';
 
 // @route GET api/auth
 // @desc Get registered user
 // @access Public
 
-router.get("/", auth, async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.userId).select('-password');
     res.json({ user });
   } catch (err) {
-    res.status(500).send("Server Error");
+    res.status(500).send('Server Error');
   }
 });
 
@@ -27,10 +30,10 @@ router.get("/", auth, async (req, res) => {
 // @access Public
 
 router.post(
-  "/",
+  '/',
   [
-    check("email", "Please include a valid email").isEmail(),
-    check("password", "Password is required").exists(),
+    check('email', 'Please include a valid email').isEmail(),
+    check('password', 'Password is required').exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -47,7 +50,7 @@ router.post(
       if (!user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: "Invalid Credentials" }] });
+          .json({ errors: [{ msg: 'Invalid Credentials' }] });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
@@ -55,7 +58,7 @@ router.post(
       if (!isMatch) {
         return res
           .status(400)
-          .json({ errors: [{ msg: "Invalid Credentials" }] });
+          .json({ errors: [{ msg: 'Invalid Credentials' }] });
       }
 
       const payload = {
@@ -66,31 +69,36 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get("auth_main_secret"),
-        { expiresIn: "5 days" },
+        config.get('auth_main_secret'),
+        { expiresIn: '5 days' },
         (err, token) => {
           if (err) throw err;
           return res
-            .cookie("letstalk_authMain", token, {
+            .cookie('letstalk_authMain', token, {
               // Disabled for development
-              // secure: true,
+              secure: !isDevelopment,
               maxAge: 10000000,
-              // httpOnly: true,
-              // sameSite: "None",
+              httpOnly: true,
+              sameSite: isDevelopment ? false : 'None',
             })
             .json();
         }
       );
     } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server error");
+      return res.status(500).send('Server error');
     }
     return null;
   }
 );
 
-router.put("/", auth, (req, res) => {
-  return res.clearCookie("letstalk_authMain").json();
+router.put('/', auth, (req, res) => {
+  res
+    .clearCookie('letstalk_authMain', {
+      sameSite: isDevelopment ? false : 'None',
+      secure: !isDevelopment,
+    })
+    .json();
 });
 
 module.exports = router;
