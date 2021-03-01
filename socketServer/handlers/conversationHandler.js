@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-const socketTypes = require('../../consts/socketTypes');
-const Conversation = require('../../models/Conversation');
-const { Message } = require('../../models/Message');
+const socketTypes = require("../../consts/socketTypes");
+const Conversation = require("../../models/Conversation");
+const { Message } = require("../../models/Message");
 
 module.exports = function conversation(socket, io) {
   const { userId } = socket;
@@ -16,7 +16,7 @@ module.exports = function conversation(socket, io) {
     const { receiversIds, messageContent } = payload;
 
     if (receiversIds.length === 0 || messageContent.length === 0) {
-      return res(null, { msg: 'Wrong query' });
+      return res(null, { msg: "Wrong query" });
     }
     const membersIds = [...new Set([...receiversIds, userId])].sort();
 
@@ -28,7 +28,7 @@ module.exports = function conversation(socket, io) {
         },
       });
       if (conversation) {
-        res(null, { msg: 'Conversation already exists' });
+        res(null, { msg: "Conversation already exists" });
       } else {
         // Create new Message
         const newMessage = new Message({
@@ -51,19 +51,19 @@ module.exports = function conversation(socket, io) {
 
         // Get a list of connected sockets related to the conversation
         const connectedSocketsToTheConversation = listOfSockets.filter(
-          (socketItem2) => membersIds.includes(socketItem2.userId)
+          (currentSocket) => membersIds.includes(currentSocket.userId)
         );
 
         // If there are any
         if (connectedSocketsToTheConversation.length !== 0) {
-          connectedSocketsToTheConversation.forEach((socketItem) => {
+          connectedSocketsToTheConversation.forEach((currentSocket) => {
             // Join to conversation
-            socketItem.join(newConversation._id);
+            currentSocket.join(newConversation._id);
           });
         }
         const populatedConversation = await Conversation.findById(
           newConversation._id
-        ).populate('members');
+        ).populate("members");
 
         // Emit message to conversation room
         socket
@@ -88,7 +88,7 @@ module.exports = function conversation(socket, io) {
     try {
       const conversations = await Conversation.find({
         members: { $in: [userId] },
-      }).populate('members', 'username avatar50x50');
+      }).populate("members", "username avatar50x50");
       // .limit(10);
       res(conversations);
     } catch (error) {
@@ -108,15 +108,15 @@ module.exports = function conversation(socket, io) {
     const { conversationId } = payload;
     try {
       const conversation = await Conversation.findById(conversationId).populate(
-        'members',
-        'username'
+        "members",
+        "username"
       );
       if (!conversation) {
-        throw new Error('There is no conversation with given id');
+        throw new Error("There is no conversation with given id");
       }
       // Check user permisson
       if (!conversation.members.map((member) => member._id).includes(userId)) {
-        throw new Error('No permisson');
+        throw new Error("No permisson");
       }
       res(conversation);
     } catch (error) {
