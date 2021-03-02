@@ -1,5 +1,5 @@
-const User = require('../../models/User');
-const socketActionTypes = require('../../consts/socketTypes');
+const socketActionTypes = require("../../consts/socketTypes");
+const { getUsersByString } = require("../../controllers/Profile.controller");
 
 module.exports = function searchUserByString(socket) {
   // @route SEARCH_USER_BY_USERNAME
@@ -9,15 +9,5 @@ module.exports = function searchUserByString(socket) {
   // (Array representing found users, Object representing error)
   // @emit NO-EMIT
 
-  socket.on(socketActionTypes.SEARCH_USER_BY_USERNAME, async (payload, cb) => {
-    try {
-      const users = await User.find({
-        username: { $regex: payload, $options: 'i' },
-      }).select(['-password', '-email', '-date']);
-      console.log(users);
-      if (users) cb(users);
-    } catch (error) {
-      cb(null, error);
-    }
-  });
+  socket.on(socketActionTypes.SEARCH_USER_BY_USERNAME, getUsersByString);
 };
