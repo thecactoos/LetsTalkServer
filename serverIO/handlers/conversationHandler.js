@@ -5,6 +5,8 @@ const {
   getConversationById,
   createDirectConversation,
   joinToConversationRooms,
+  addMessageToConversation,
+  getUsersByString,
 } = require("../../controllers/Conversation.controller");
 
 module.exports = function conversation(socket, io) {
@@ -18,4 +20,5 @@ module.exports = function conversation(socket, io) {
     getAllConversations(socket)
   );
   socket.on(socketTypes.GET_CONVERSATION_BY_ID, getConversationById(socket));
+  socket.on(socketTypes.SEND_MESSAGE, addMessageToConversation(socket));
 };

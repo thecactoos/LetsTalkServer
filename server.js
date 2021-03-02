@@ -6,7 +6,7 @@ const socketIO = require("socket.io");
 require("dotenv").config();
 
 const connectDb = require("./config/db");
-const socketServer = require("./socketServer/socketServer");
+const serverIO = require("./serverIO/serverIO");
 
 const app = express();
 
@@ -43,7 +43,7 @@ const io = socketIO(server, {
   path: "/socket",
   origins: "*:*",
 });
-socketServer(io);
+serverIO(io);
 
 app.set("socketio", io);
 

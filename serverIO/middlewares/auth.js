@@ -29,10 +29,10 @@ module.exports = (io) => {
       next();
     } catch (error) {
       console.log(error);
-      // if (error.name === "JsonWebTokenError") {
-      //   const WebTokenError = InvalidCredentials("Invalid credentials");
-      //   return next(n)
-      // }
+      if (error.name === "JsonWebTokenError") {
+        const WebTokenError = InvalidCredentials("Invalid credentials");
+        return next(WebTokenError);
+      }
       next(error);
     }
   });
