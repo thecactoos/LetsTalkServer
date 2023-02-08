@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { InvalidCredentials } = require("../../errors");
 
 const convertCookiesStringToObject = (cookiesString) =>
   Object.fromEntries(
@@ -18,7 +17,9 @@ module.exports = (io) => {
       );
 
       if (!token) {
-        throw new InvalidCredentials("Invalid credentials");
+        throw new Error('No token, access denied');
+
+        // throw new InvalidCredentials("Invalid credentials");
       }
 
       const decoded = jwt.verify(token, process.env.AUTH_MAIN_SECRET);
@@ -30,8 +31,9 @@ module.exports = (io) => {
     } catch (error) {
       console.log(error);
       if (error.name === "JsonWebTokenError") {
-        const WebTokenError = InvalidCredentials("Invalid credentials");
-        return next(WebTokenError);
+        // return next(new Error('Json'))
+        // const WebTokenError = InvalidCredentials("Invalid credentials");
+        // return next(WebTokenError);
       }
       next(error);
     }

@@ -66,7 +66,7 @@ router.post(
 
       // Create token
       const token = jwt.sign(payload, process.env.AUTH_MAIN_SECRET, {
-        expiresIn: "5 days",
+        expiresIn: "7d",
       });
 
       return res

@@ -23,7 +23,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// @route POST api/users
+// @route POST api/auth
 // @desc Authenticate user & get token
 // @access Public
 
@@ -68,7 +68,7 @@ router.post(
       jwt.sign(
         payload,
         process.env.AUTH_MAIN_SECRET,
-        { expiresIn: "5 days" },
+        { expiresIn: '7d' },
         (err, token) => {
           if (err) throw err;
           return res
