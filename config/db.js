@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const db = process.env.MONGO_URI;
+
+console.log(process.env.MONGO_URI);
 
 const connectDb = async () => {
   try {
@@ -11,7 +13,7 @@ const connectDb = async () => {
       useFindAndModify: false,
     });
     // eslint-disable-next-line no-console
-    console.log("MongoDb Connected");
+    console.log('MongoDb Connected');
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
