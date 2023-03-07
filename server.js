@@ -52,4 +52,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Listening on Port ${PORT}`);
 });
 
-app.get('/', (req, res) => res.send(`Api running${process.env.ORIGIN)}`));
+app.get('/', (req, res) => res.send(`Api running${process.env.ORIGIN}`));
