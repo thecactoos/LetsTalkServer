@@ -21,6 +21,7 @@ const isDevelopment =
   process.env.NODE_ENV && process.env.NODE_ENV === 'development';
 
 // Init middlewares
+
 app.use(
   cors({
     origin: isDevelopment ? process.env.ORIGIN_DEV : process.env.ORIGIN,
@@ -41,7 +42,7 @@ app.use('/api/profile', require('./routes/api/profile'));
 // Initiate socket server
 const io = socketIO(server, {
   path: '/socket',
-  origins: '*:*',
+  origins: '**',
 });
 serverIO(io);
 
@@ -51,4 +52,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Listening on Port ${PORT}`);
 });
 
-app.get('/', (req, res) => res.send('Api running'));
+app.get('/', (req, res) => res.send(`Api running${process.env.ORIGIN)}`));
