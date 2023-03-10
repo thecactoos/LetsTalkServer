@@ -45,7 +45,7 @@ const io = socketIO(server, {
   origins: [isDevelopment ? process.env.ORIGIN_DEV : process.env.ORIGIN],
 });
 
-console.log(process.env.ORIGIN);
+console.log('ORIIIIIIIIIIIIIIIIIIGIN        :', process.env.ORIGIN);
 
 serverIO(io);
 
