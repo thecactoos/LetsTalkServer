@@ -53,4 +53,3 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 app.get('/', (req, res) => res.send(`Api running${process.env.ORIGIN}`));
-git;
