@@ -42,7 +42,7 @@ app.use('/api/profile', require('./routes/api/profile'));
 // Initiate socket server
 const io = socketIO(server, {
   path: '/socket',
-  origins: '**',
+  origins: isDevelopment ? process.env.ORIGIN_DEV : process.env.ORIGIN,
 });
 serverIO(io);
 
@@ -53,3 +53,4 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 app.get('/', (req, res) => res.send(`Api running${process.env.ORIGIN}`));
+git;
