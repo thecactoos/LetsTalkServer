@@ -41,8 +41,8 @@ app.use('/api/profile', require('./routes/api/profile'));
 
 // Initiate socket server
 const io = socketIO(server, {
-  path: 'api/socket',
-  origins: [isDevelopment ? process.env.ORIGIN_DEV : `${process.env.ORIGIN}:*`],
+  path: '/api/socket',
+  origins: '*:*',
 });
 
 console.log('ORIIIIIIIIIIIIIIIIIIGIN        :', process.env.ORIGIN);
