@@ -44,7 +44,7 @@ app.use('/api/profile', require('./routes/api/profile'));
 const io = new Server(server, {
   path: '/api/socket',
   cors: {
-    origin: 'http://localhost:3000',
+    origin: isDevelopment ? process.env.ORIGIN_DEV : process.env.ORIGIN,
     credentials: true,
     methods: ['GET', 'POST'],
   },
