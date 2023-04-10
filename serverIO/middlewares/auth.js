@@ -1,11 +1,11 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 const convertCookiesStringToObject = (cookiesString) =>
   Object.fromEntries(
-    cookiesString.split("; ").map((cookie) => {
-      const [key, ...value] = cookie.split("=");
-      return [key, value.join("=")];
-    })
+    cookiesString.split('; ').map((cookie) => {
+      const [key, ...value] = cookie.split('=');
+      return [key, value.join('=')];
+    }),
   );
 
 module.exports = (io) => {
@@ -13,7 +13,7 @@ module.exports = (io) => {
     try {
       // Get authentication token from cookies
       const { letstalk_authMain: token } = convertCookiesStringToObject(
-        socket.handshake.headers.cookie
+        socket.request.headers.cookie,
       );
 
       if (!token) {
@@ -30,7 +30,7 @@ module.exports = (io) => {
       next();
     } catch (error) {
       console.log(error);
-      if (error.name === "JsonWebTokenError") {
+      if (error.name === 'JsonWebTokenError') {
         // return next(new Error('Json'))
         // const WebTokenError = InvalidCredentials("Invalid credentials");
         // return next(WebTokenError);
